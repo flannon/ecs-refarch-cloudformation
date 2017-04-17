@@ -103,7 +103,9 @@ Resources:
             InstanceType: !Ref InstanceType
             SecurityGroups: 
                 - !Ref SecurityGroup
-            IamInstanceProfile: !Ref ECSInstanceProfile
+            #IamInstanceProfile: !Ref ECSInstanceProfile
+            IamInstanceProfile:
+            - Fn::ImportValue: !Sub IAMECSInstanceRole-InstanceProfileARN
             UserData: 
                 "Fn::Base64": !Sub |
                     #!/bin/bash
@@ -151,53 +153,53 @@ Resources:
     # to other AWS services. Please note that this role will be used by ALL containers
     # running on the ECS host.
 
-    ECSRole:
-        Type: AWS::IAM::Role
-        Properties: 
-            Path: /
-            RoleName: !Sub ${EnvironmentName}-ECSRole-${AWS::Region}
-            AssumeRolePolicyDocument: |
-                {
-                    "Statement": [{
-                        "Action": "sts:AssumeRole",
-                        "Effect": "Allow",
-                        "Principal": { 
-                            "Service": "ec2.amazonaws.com" 
-                        }
-                    }]
-                }
-            Policies: 
-                - PolicyName: ecs-service
-                  PolicyDocument: |
-                    {
-                        "Statement": [{
-                            "Effect": "Allow",
-                            "Action": [
-                                "ecs:CreateCluster",
-                                "ecs:DeregisterContainerInstance",
-                                "ecs:DiscoverPollEndpoint",
-                                "ecs:Poll",
-                                "ecs:RegisterContainerInstance",
-                                "ecs:StartTelemetrySession",
-                                "ecs:Submit*",
-                                "logs:CreateLogStream",
-                                "logs:PutLogEvents",
-                                "ecr:BatchCheckLayerAvailability",
-                                "ecr:BatchGetImage",
-                                "ecr:GetDownloadUrlForLayer",
-                                "ecr:GetAuthorizationToken"
-                            ],
-                            "Resource": "*"
-                        }]
-                    }
-
-    ECSInstanceProfile: 
-        Type: AWS::IAM::InstanceProfile
-        Properties:
-            Path: /
-            Roles: 
-                - !Ref ECSRole
-
+#    ECSRole:
+#        Type: AWS::IAM::Role
+#        Properties: 
+#            Path: /
+#            RoleName: !Sub ${EnvironmentName}-ECSRole-${AWS::Region}
+#            AssumeRolePolicyDocument: |
+#                {
+#                    "Statement": [{
+#                        "Action": "sts:AssumeRole",
+#                        "Effect": "Allow",
+#                        "Principal": { 
+#                            "Service": "ec2.amazonaws.com" 
+#                        }
+#                    }]
+#                }
+#            Policies: 
+#                - PolicyName: ecs-service
+#                  PolicyDocument: |
+#                    {
+#                        "Statement": [{
+#                            "Effect": "Allow",
+#                            "Action": [
+#                                "ecs:CreateCluster",
+#                                "ecs:DeregisterContainerInstance",
+#                                "ecs:DiscoverPollEndpoint",
+#                                "ecs:Poll",
+#                                "ecs:RegisterContainerInstance",
+#                                "ecs:StartTelemetrySession",
+#                                "ecs:Submit*",
+#                                "logs:CreateLogStream",
+#                                "logs:PutLogEvents",
+#                                "ecr:BatchCheckLayerAvailability",
+#                                "ecr:BatchGetImage",
+#                                "ecr:GetDownloadUrlForLayer",
+#                                "ecr:GetAuthorizationToken"
+#                            ],
+#                            "Resource": "*"
+#                        }]
+#                    }
+#
+#    ECSInstanceProfile: 
+#        Type: AWS::IAM::InstanceProfile
+#        Properties:
+#            Path: /
+#            Roles: 
+#                - !Ref ECSRole
+#
 Outputs:
 
     Cluster:
